@@ -1,0 +1,6 @@
+# Extensions files
+*.json
+*.pyc
+
+# Folders
+venv
