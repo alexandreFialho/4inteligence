@@ -8,6 +8,7 @@ router = APIRouter()
              responses={
                  201: {"description": "User created successfully"},
              },
+             status_code=201,
              tags=["Users"])
 async def create_user():
     return {"message": "User created successfully"}
@@ -18,6 +19,7 @@ async def create_user():
             responses={
                 200: {"description": "Data from users"},
             },
+            status_code=200,
             tags=["Users"])
 async def get_data_from_all_users():
     return {"message": "data from all users"}
@@ -28,6 +30,7 @@ async def get_data_from_all_users():
             responses={
                 200: {"description": "Data from user"},
             },
+            status_code=200,
             tags=["Users"])
 async def get_data_from(user_id: int):
     return {"message": f"data from user: {user_id}"}
@@ -36,8 +39,9 @@ async def get_data_from(user_id: int):
 @router.put("/api/users/{user_id}",
             summary="Update data of a especific user",
             responses={
-                202: {"description": f"User updated"},
+                204: {"description": f"User updated"},
             },
+            status_code=204,
             tags=["Users"])
 async def update_user_from(user_id: int):
     return {"message": f"User Updated: {user_id}"}
@@ -46,8 +50,9 @@ async def update_user_from(user_id: int):
 @router.delete("/api/users/{user_id}",
                summary="Delete a especific user",
                responses={
-                   202: {"description": f"User deleted"},
+                   204: {"description": f"User deleted"},
                },
+               status_code=204,
                tags=["Users"])
 async def delete_user_from(user_id: int):
     return {"message": f"User Deleted: {user_id}"}
