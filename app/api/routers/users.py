@@ -2,14 +2,16 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
+
 @router.post("/api/users",
-            summary="Return data of the created user",
-            responses={
-                201: {"description": "User created successfully"},
-            },
-            tags=["Users"])
+             summary="Return data of the created user",
+             responses={
+                 201: {"description": "User created successfully"},
+             },
+             tags=["Users"])
 async def create_user():
     return {"message": "User created successfully"}
+
 
 @router.get("/api/users",
             summary="Return data from all users",
