@@ -1,23 +1,23 @@
 # pull official base image
-FROM python:3.8.1-alpine
+FROM python:3.8
 
 # set work directory
-WORKDIR /usr/src/app
+WORKDIR /webapp
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # copy requirements file
-COPY ./requirements.txt /usr/src/app/requirements.txt
+COPY ./requirements.txt /webapp/requirements.txt
 
 # install os dependencies
-RUN set -eux \
-    && apk add --no-cache --virtual .build-deps build-base \
-        libressl-dev libffi-dev gcc musl-dev python3-dev \
+RUN \
+    apt-get update \
     && pip install --upgrade pip setuptools wheel \
-    && pip install -r /usr/src/app/requirements.txt \
-    && rm -rf /root/.cache/pip
+    && pip install -r /webapp/requirements.txt 
 
 # copy project
-COPY ./app /usr/src/app/
+COPY ./app /webapp/
+
+ENTRYPOINT [ "/webapp/entrypoint.sh" ]

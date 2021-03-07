@@ -1,16 +1,34 @@
 version: '3.7'
 
 services:
-  web_service:
-    build: .
-    container_name: api
-    command: uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+  web_db:
+    image: postgres:12.1-alpine
+    container_name: web_db
     volumes:
-      - ./app:/usr/src/app/
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    networks: 
+      - app-networks
+
+  web_api:
+    build: .
+    container_name: web_api
+    volumes: 
+      - ./app:/webapp
     ports:
       - 8002:8000
     networks: 
       - app-networks
+    env_file: 
+      - .env
+    depends_on: 
+      - web_db
+
+volumes:
+  postgres_data:
 
 networks:
   app-networks:

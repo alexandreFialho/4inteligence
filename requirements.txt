@@ -1,2 +1,10 @@
+# web api
 fastapi==0.63.0
 uvicorn==0.13.4
+pydantic==1.8.1
+
+# web database
+databases[postgresql]==0.3.1
+SQLAlchemy==1.3.16
+alembic==1.5.6
+psycopg2-binary==2.8.6
