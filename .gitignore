@@ -1,6 +1,7 @@
 # Extensions files
-*.json
 *.pyc
+.env
 
 # Folders
+.vscode
 venv
