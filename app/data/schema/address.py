@@ -7,6 +7,7 @@ class AddressBase(BaseModel):
 
 
 class AddressIn(AddressBase):
+    user_id: int
     street: Optional[str] = None
     neighborhoods: Optional[str] = None
     city: Optional[str] = None
