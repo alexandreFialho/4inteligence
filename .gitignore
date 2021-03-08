@@ -1,6 +1,5 @@
 # Extensions files
 *.pyc
-.env
 
 # Folders
 .vscode
