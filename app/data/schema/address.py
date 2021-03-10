@@ -3,27 +3,18 @@ from pydantic import BaseModel
 
 
 class AddressBase(BaseModel):
-    postal_code: str = "12345-678"
+    postal_code: str
 
 
 class AddressIn(AddressBase):
-    user_id: int
-    street: Optional[str] = None
-    neighborhoods: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
+    street: Optional[str] = ""
+    neighborhoods: Optional[str] = ""
+    city: Optional[str] = ""
+    state: Optional[str] = ""
 
 
-class AddressUser(AddressBase):
-    street: str
-    neighborhoods: str
-    city: str
-    state: str
-
-
-class Address(AddressUser):
+class Address(AddressIn):
     id: int
-    user_id: int
 
     class Config:
         orm_mode = True

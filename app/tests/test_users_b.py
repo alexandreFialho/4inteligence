@@ -1,11 +1,4 @@
-from fastapi.testclient import TestClient
-
-from api.main import app
-
-client = TestClient(app=app)
-
-
-def test_create():
+def test_create(client):
     response = client.post(
         "api/users",
         headers={"X-Token": "coneofsilence"},
@@ -21,7 +14,7 @@ def test_create():
     }
 
 
-def test_create_bad_token():
+def test_create_bad_token(client):
     response = client.post(
         "api/users",
         headers={"X-Token": "hailhydra"},
@@ -32,7 +25,7 @@ def test_create_bad_token():
     assert response.json() == {"detail": "Invalid X-Token header"}
 
 
-def test_create_existing():
+def test_create_existing(client):
     response = client.post(
         "api/users",
         headers={"X-Token": "coneofsilence"},
@@ -43,7 +36,7 @@ def test_create_existing():
     assert response.json() == {"detail": "User already exists"}
 
 
-def test_read():
+def test_read(client):
     response = client.get(
         "api/users/1",
         headers={"X-Token": "coneofsilence"}
@@ -57,23 +50,23 @@ def test_read():
     }
 
 
-def test_read_bad_token():
+def test_read_bad_token(client):
     response = client.get(
-        "api/users/0",
+        "api/users/1",
         headers={"X-Token": "hailhydra"}
     )
     assert response.status_code == 400
     assert response.json() == {"detail": "Invalid X-Token header"}
 
 
-def test_read_inexistent():
+def test_read_inexistent(client):
     response = client.get(
         "api/users/2", headers={"X-Token": "coneofsilence"})
     assert response.status_code == 404
     assert response.json() == {"detail": "User not found"}
 
 
-def test_read_all():
+def test_read_all(client):
     response = client.get(
         "api/users/", headers={"X-Token": "coneofsilence"})
     assert response.status_code == 200
@@ -87,13 +80,13 @@ def test_read_all():
     ]
 
 
-def test_read_all_bad_token():
+def test_read_all_bad_token(client):
     response = client.get("/api/users/", headers={"X-Token": "hailhydra"})
     assert response.status_code == 400
     assert response.json() == {"detail": "Invalid X-Token header"}
 
 
-def test_put():
+def test_put(client):
     response = client.put(
         "api/users/1", headers={"X-Token": "coneofsilence"},
         json={"name": "Alexandre", "document": "321.456.789-10",
@@ -108,7 +101,7 @@ def test_put():
     }
 
 
-def test_put_bad_token():
+def test_put_bad_token(client):
     response = client.put(
         "api/users/1", headers={"X-Token": "hailhydra"},
         json={"name": "Alexandre", "document": "321.456.789-10",
@@ -117,7 +110,7 @@ def test_put_bad_token():
     assert response.json() == {"detail": "Invalid X-Token header"}
 
 
-def test_put_inexistent():
+def test_put_inexistent(client):
     response = client.put(
         "api/users/2", headers={"X-Token": "coneofsilence"},
         json={"name": "Alexandre", "document": "321.456.789-10",
@@ -126,7 +119,7 @@ def test_put_inexistent():
     assert response.json() == {"detail": "User not found"}
 
 
-def test_delete():
+def test_delete(client):
     response = client.delete(
         "api/users/1", headers={"X-Token": "coneofsilence"}
     )
@@ -134,7 +127,7 @@ def test_delete():
     assert response.json() == {"detail": "User deleted successfully"}
 
 
-def test_delete_bad_token():
+def test_delete_bad_token(client):
     response = client.delete(
         "api/users/1", headers={"X-Token": "hailhydra"}
     )
@@ -142,8 +135,8 @@ def test_delete_bad_token():
     assert response.json() == {"detail": "Invalid X-Token header"}
 
 
-def test_delete_inexistent():
+def test_delete_inexistent(client):
     response = client.delete(
-        "api/users/2", headers={"X-Token": "coneofsilence"})
+        "api/users/32", headers={"X-Token": "coneofsilence"})
     assert response.status_code == 404
     assert response.json() == {"detail": "User not found"}
