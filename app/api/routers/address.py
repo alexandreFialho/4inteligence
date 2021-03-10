@@ -20,7 +20,10 @@ fake_secret_token = "coneofsilence"
     response_model=Address,
     responses={
         201: {"description": "Address created successfully"},
-        400: {"description": "Token invalid or address already exists"},
+        401: {"description": "Invalid token"},
+        400: {"description": "Address already exists"},
+        404: {"description": "User not found"},
+        406: {"description": "Invalid postal code"},
     },
     status_code=201,
     tags=["Address"],
@@ -31,15 +34,17 @@ async def create(
     db_session: Session = Depends(DbSession)
 ):
     if x_token != fake_secret_token:
-        raise HTTPException(status_code=400, detail="Invalid X-Token header")
-    
-    print(36, dict(address.dict()))
+        raise HTTPException(status_code=401, detail="Invalid X-Token header")
+
+
     try:
         return AddressController(db_session).create(address)
     except IntegrityError:
         raise HTTPException(status_code=400, detail="Address already exists")
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid postal code")
+        raise HTTPException(status_code=406, detail="Invalid postal_code")
+    except InvalidRequestError:
+        raise HTTPException(status_code=404, detail="User not found")
 
 
 @router.get(

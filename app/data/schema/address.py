@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 
 class AddressBase(BaseModel):
+    user_id: int
     postal_code: str
 
 
