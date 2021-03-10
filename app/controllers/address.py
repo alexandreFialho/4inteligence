@@ -23,7 +23,7 @@ class AddressController(CONTROLLER):
             "state": "uf",
         }
 
-        postal_code = "".join(re.findall("\d+", address.postal_code))
+        postal_code = "".join(re.findall(r"\d+", address.postal_code))
 
         if not len(postal_code) == 8:
             raise ValueError
