@@ -20,19 +20,21 @@ class AddressController(CONTROLLER):
         address_dict = dict(address.dict())
 
         user = UserController(self.db_session).get(address.user_id)
-        postal_code = "".join(re.findall(r"\d+", address.postal_code))
-        response = json.loads(
-            requests.get(f"https://viacep.com.br/ws/{postal_code}/json/").content
-        )
 
         if not user:
             raise InvalidRequestError
 
+        postal_code = "".join(re.findall(r"\d+", address.postal_code))
+
         if not len(postal_code) == 8:
             raise ValueError
 
-        if response.get('erro'):
+        response = requests.get(f"https://viacep.com.br/ws/{postal_code}/json/")
+
+        if not response.ok or json.loads(response.content).get("erro"):
             raise ValueError
+        else:
+            response = json.loads(response.content)
 
         via_cep_keys = {
             "street": "logradouro",

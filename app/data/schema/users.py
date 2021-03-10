@@ -13,7 +13,7 @@ class UserBase(BaseModel):
 
 class UserIn(UserBase):
     name: str
-    document: str = "123.456.789-10"
+    document: str
     birth_date: date
 
 
