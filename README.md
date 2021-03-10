@@ -8,3 +8,6 @@ Esse comando ira levantar os container da aplicação como também o container d
 
 ### Para acessar a interface da api via swagger, basta digitar o ip esternalizado do docker caso sua máquina seja mac ou ip local caso seja linux.
 A aplicação esta levantada na porta ```8002```
+
+### Para realizar qualquer requisição, informar o seguinte paramentro no header da solicitação
+```x-token:coneofsilence```
