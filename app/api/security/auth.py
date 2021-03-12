@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from api.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from api.deps import get_current_active_user, get_current_user, DbSession
+from api.deps import get_current_user, DbSession
 from data.schema.auth import AuthUser, AuthUserIn, Token
 from controllers.auth import create_access_token, authenticate_user, AuthUserController
 
