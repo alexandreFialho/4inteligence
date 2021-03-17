@@ -1,5 +1,3 @@
-import json
-
 from starlette.testclient import TestClient
 from controllers.auth import create_access_token
 
@@ -22,17 +20,28 @@ def test_create(client: TestClient):
         "api/users",
         headers={"Authorization": f"bearer {token}"},
         json={
-            "name": "Alexandre",
-            "document": "123.456.789-10",
+            "name": "Alexandre Fialho",
+            "document": "390.430.138-11",
             "birth_date": "1995-10-05",
+            "address": {
+                "postal_code": "08412-070"
+            }
         },
     )
     assert response.status_code == 201
     assert response.json() == {
-        "id": 1,
-        "name": "Alexandre",
-        "document": "123.456.789-10",
+        "name": "Alexandre Fialho",
+        "document": "390.430.138-11",
         "birth_date": "1995-10-05",
+        "id": 1,
+        "address": {
+            "city": "São Paulo",
+            "postal_code": "08412-070",
+            "street": "Rua Antônio Silvestre Ferreira",
+            "neighborhoods": "Vila Cruzeiro",
+            "state": "Sp",
+            "id": 1,
+        }
     }
 
 
@@ -57,8 +66,8 @@ def test_create_existing(client: TestClient):
         "api/users",
         headers={"Authorization": f"bearer {token}"},
         json={
-            "name": "Alexandre",
-            "document": "123.456.789-10",
+            "name": "Alexandre Fialho",
+            "document": "390.430.138-11",
             "birth_date": "1995-10-05",
         },
     )
@@ -73,9 +82,17 @@ def test_read(client: TestClient):
     assert response.status_code == 200
     assert response.json() == {
         "id": 1,
-        "name": "Alexandre",
-        "document": "123.456.789-10",
+        "name": "Alexandre Fialho",
+        "document": "390.430.138-11",
         "birth_date": "1995-10-05",
+        "address": {
+            "postal_code": "08412-070",
+            "street": "Rua Antônio Silvestre Ferreira",
+            "neighborhoods": "Vila Cruzeiro",
+            "city": "São Paulo",
+            "state": "Sp",
+            "id": 1
+        }
     }
 
 
@@ -103,9 +120,17 @@ def test_read_all(client: TestClient):
     assert response.json() == [
         {
             "id": 1,
-            "name": "Alexandre",
-            "document": "123.456.789-10",
+            "name": "Alexandre Fialho",
+            "document": "390.430.138-11",
             "birth_date": "1995-10-05",
+            "address": {
+                "postal_code": "08412-070",
+                "street": "Rua Antônio Silvestre Ferreira",
+                "neighborhoods": "Vila Cruzeiro",
+                "city": "São Paulo",
+                "state": "Sp",
+                "id": 1
+            }
         }
     ]
 
@@ -125,17 +150,23 @@ def test_put(client: TestClient):
         "api/users/1",
         headers={"Authorization": f"bearer {token}"},
         json={
-            "name": "Alexandre",
-            "document": "321.456.789-10",
-            "birth_date": "1995-10-05",
+            "name": "Alexandre Fialho de Araujo",
         },
     )
     assert response.status_code == 200
     assert response.json() == {
         "id": 1,
-        "name": "Alexandre",
-        "document": "321.456.789-10",
+        "name": "Alexandre Fialho De Araujo",
+        "document": "390.430.138-11",
         "birth_date": "1995-10-05",
+        "address": {
+            "id": 1,
+            "postal_code": "08412-070",
+            "street": "Rua Antônio Silvestre Ferreira",
+            "neighborhoods": "Vila Cruzeiro",
+            "city": "São Paulo",
+            "state": "Sp"
+        }
     }
 
 
@@ -144,9 +175,7 @@ def test_put_bad_token(client: TestClient):
         "api/users/1",
         headers={"Authorization": "bearer dasjhdkjfd"},
         json={
-            "name": "Alexandre",
-            "document": "321.456.789-10",
-            "birth_date": "1995-10-05",
+            "name": "Alexandre Fialho de Araujo",
         },
     )
     assert response.status_code == 401
@@ -160,9 +189,7 @@ def test_put_inexistent(client: TestClient):
         "api/users/2",
         headers={"Authorization": f"bearer {token}"},
         json={
-            "name": "Alexandre",
-            "document": "321.456.789-10",
-            "birth_date": "1995-10-05",
+            "name": "Alexandre Fialho de Araujo",
         },
     )
     assert response.status_code == 404

@@ -1,12 +1,12 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status, Security
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from api.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from api.deps import get_current_user, DbSession
+from api.deps import DbSession
 from data.schema.auth import AuthUser, AuthUserIn, Token
 from controllers.auth import create_access_token, authenticate_user, AuthUserController
 
@@ -27,9 +27,11 @@ router = APIRouter()
 )
 async def create_login(auth_user: AuthUserIn, db_session: Session = Depends(DbSession)):
     try:
-        user = AuthUserController(db_session).create(auth_user)
+        user = AuthUserController(db_session=db_session).create(auth_user)
     except IntegrityError:
-        raise HTTPException(status_code=400, detail="Auth already exists")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Auth already exists"
+        )
 
     return user
 
@@ -43,12 +45,15 @@ async def create_login(auth_user: AuthUserIn, db_session: Session = Depends(DbSe
         401: {"description": "Incorrect username or password"},
     },
     status_code=201,
-    tags=["Security"])
+    tags=["Security"],
+)
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db_session: Session = Depends(DbSession),
 ):
-    user = authenticate_user(db_session, form_data.username, form_data.password)
+    user = authenticate_user(
+        db_session=db_session, username=form_data.username, password=form_data.password
+    )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

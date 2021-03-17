@@ -3,20 +3,18 @@ from pydantic import BaseModel
 
 
 class Token(BaseModel):
-    access_token: str
-    token_type: str
+    access_token: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWxndW1hIGluZm9ybWFjYW8iLCJzY29wZXMiOiJhbGd1bnMgZXNjb3BvcyIsImV4cCI6MTYxNTU4NDczN30.l4uvnF8mKJWJbmsrgqIaQAHwmMmVFLGvWMIHjxtgZYs"
+    token_type: str = "Bearer"
 
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    username: Optional[str]
     scopes: List[str] = []
 
 
 class AuthUserBase(BaseModel):
     username: str
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = False
+    email: Optional[str] = "email@email.com"
 
 
 class AuthUserIn(AuthUserBase):

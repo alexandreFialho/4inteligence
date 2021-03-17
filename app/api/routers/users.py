@@ -1,10 +1,11 @@
 from typing import List
-from fastapi import APIRouter, Header, Security, Depends, HTTPException, status
+from fastapi import APIRouter, Security, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from api.deps import DbSession, get_current_user
-from data.schema.users import User, UserBase, UserIn
+from data.schema.users import User, UserIn, UserPut
 from data.schema.auth import AuthUser
 from controllers.users import UserController
 
@@ -50,9 +51,11 @@ async def create(
         [User]: created
     """
     try:
-        return UserController(db_session).create(user)
+        return UserController(db_session=db_session).create(user)
     except IntegrityError:
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists"
+        )
 
 
 @router.get(
@@ -83,7 +86,7 @@ async def get_data_from_all_users(
     Returns:
         List[User]: List of users registered.
     """
-    return UserController(db_session).get_all()
+    return UserController(db_session=db_session).get_all()
 
 
 @router.get(
@@ -126,10 +129,12 @@ async def get_data_from(
         [User]: Datas from user
     """
 
-    user = UserController(db_session).get(user_id)
+    user = UserController(db_session=db_session).get(user_id)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     return user
 
@@ -148,7 +153,7 @@ async def get_data_from(
 )
 async def update_user_from(
     user_id: int,
-    user: UserBase,
+    user: UserPut,
     current_user: AuthUser = Security(get_current_user, scopes=["full", "default"]),
     db_session: Session = Depends(DbSession),
 ):
@@ -157,7 +162,7 @@ async def update_user_from(
     Args:
 
         user_id (int): Identifier of the user
-        user (UserBase): Schema for update user
+        user (UserPut): Schema for update user
 
         Headers:
             Authorization : Bearer {token}
@@ -175,10 +180,12 @@ async def update_user_from(
     Returns:
         [User]: User updated
     """
-    user = UserController(db_session).update(user_id, user)
+    user = UserController(db_session=db_session).update(user_id, user)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     return user
 
@@ -216,6 +223,8 @@ async def delete_user_from(
         ]
     """
     try:
-        UserController(db_session).delete(user_id)
-    except ValueError:
-        raise HTTPException(status_code=404, detail="User not found")
+        UserController(db_session=db_session).delete(user_id)
+    except UnmappedInstanceError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )

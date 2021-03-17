@@ -49,7 +49,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 class AuthUserController(CONTROLLER):
     def __init__(self, db_session: Session):
         super(AuthUserController, self).__init__(
-            db_session=db_session, db_entity=AuthUser
+            db_session=db_session, db_model=AuthUser
         )
 
     def create(self, auth_user: AuthUserIn):

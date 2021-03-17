@@ -6,6 +6,7 @@ pydantic==1.8.1
 python-jose==3.2.0
 python-multipart==0.0.5
 passlib[bcrypt]==1.7.4
+pycep-correios==5.0.0
 
 # web database
 databases[postgresql]==0.3.1

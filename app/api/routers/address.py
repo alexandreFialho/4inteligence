@@ -1,12 +1,14 @@
-from fastapi import Depends
+from fastapi import Depends, Security, status
 from typing import List
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError, InvalidRequestError
+from sqlalchemy.orm.exc import UnmappedInstanceError
+from sqlalchemy.exc import IntegrityError
 
 
-from data.database import DbSession
-from data.schema.address import Address, AddressIn
+from api.deps import DbSession, get_current_user
+from data.models import AuthUser
+from data.schema.address import Address, AddressIn, AddressPut
 from controllers.address import AddressController
 
 router = APIRouter()
@@ -15,66 +17,66 @@ fake_secret_token = "coneofsilence"
 
 
 @router.post(
-    "/api/address",
-    summary="Return data of the created address",
+    "/api/address/{user_id}",
+    summary="Create address",
     response_model=Address,
     responses={
         201: {"description": "Address created successfully"},
-        401: {"description": "Invalid token"},
-        400: {"description": "Address already exists"},
+        401: {"description": "Could not validate credentials, Not enough permissions"},
+        400: {"description": "Address already exists, Invalid postal code"},
         404: {"description": "User not found"},
-        406: {"description": "Invalid postal code"},
     },
     status_code=201,
     tags=["Address"],
 )
 async def create(
+    user_id: int,
     address: AddressIn,
-    x_token: str = Header(None),
-    db_session: Session = Depends(DbSession)
+    current_user: AuthUser = Security(get_current_user, scopes=["full", "default"]),
+    db_session: Session = Depends(DbSession),
 ):
-    if x_token != fake_secret_token:
-        raise HTTPException(status_code=401, detail="Invalid X-Token header")
-
 
     try:
-        return AddressController(db_session).create(address)
+        return AddressController(db_session).create(user_id, address)
     except IntegrityError:
-        raise HTTPException(status_code=400, detail="Address already exists")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Address already exists"
+        )
     except ValueError:
-        raise HTTPException(status_code=406, detail="Invalid postal_code")
-    except InvalidRequestError:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid postal code"
+        )
+    except UnmappedInstanceError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
 
 @router.get(
     "/api/address",
-    summary="Return data from all Address",
+    summary="Get all Address",
     response_model=List[Address],
     responses={
         200: {"description": "Data from Address"},
-        400: {"description": "Invalid token"},
+        401: {"description": "Could not validate credentials, Not enough permissions"},
     },
     status_code=200,
     tags=["Address"],
 )
 async def get_all(
-    x_token: str = Header(None),
-    db_session: Session = Depends(DbSession)
+    current_user: AuthUser = Security(get_current_user, scopes=["full", "default"]),
+    db_session: Session = Depends(DbSession),
 ):
-    if x_token != fake_secret_token:
-        raise HTTPException(status_code=400, detail="Invalid X-Token header")
-
     return AddressController(db_session).get_all()
 
 
 @router.get(
     "/api/address/{address_id}",
-    summary="Return data for a especific address",
+    summary="Get address",
     response_model=Address,
     responses={
         200: {"description": "Data from address"},
-        400: {"description": "Invalid token"},
+        401: {"description": "Could not validate credentials, Not enough permissions"},
         404: {"description": "Address not found"},
     },
     status_code=200,
@@ -82,27 +84,26 @@ async def get_all(
 )
 async def get_data_from(
     address_id: int,
-    x_token: str = Header(None),
-    db_session: Session = Depends(DbSession)
+    current_user: AuthUser = Security(get_current_user, scopes=["full", "default"]),
+    db_session: Session = Depends(DbSession),
 ):
-    if x_token != fake_secret_token:
-        raise HTTPException(status_code=400, detail="Invalid X-Token header")
-
     address = AddressController(db_session).get(address_id)
 
     if not address:
-        raise HTTPException(status_code=404, detail="Address not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Address not found"
+        )
 
     return address
 
 
 @router.put(
     "/api/address/{address_id}",
-    summary="Update data of a especific address",
+    summary="Update address",
     response_model=Address,
     responses={
         200: {"description": "Address updated"},
-        400: {"description": "Invalid token"},
+        401: {"description": "Could not validate credentials, Not enough permissions"},
         404: {"description": "Address not found"},
     },
     status_code=200,
@@ -110,40 +111,40 @@ async def get_data_from(
 )
 async def update_user_from(
     address_id: int,
-    address: AddressIn,
-    x_token: str = Header(None),
-    db_session: Session = Depends(DbSession)
+    address: AddressPut,
+    current_user: AuthUser = Security(get_current_user, scopes=["full", "default"]),
+    db_session: Session = Depends(DbSession),
 ):
-    if x_token != fake_secret_token:
-        raise HTTPException(status_code=400, detail="Invalid X-Token header")
 
     address = AddressController(db_session).update(address_id, address)
 
     if not address:
-        raise HTTPException(status_code=404, detail="Address not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Address not found"
+        )
 
     return address
 
 
 @router.delete(
     "/api/address/{address_id}",
-    summary="Delete a especific address",
+    summary="Delete address",
     responses={
         204: {"description": "Address deleted"},
+        401: {"description": "Could not validate credentials, Not enough permissions"},
+        404: {"description": "Address not found"},
     },
     status_code=204,
     tags=["Address"],
 )
 async def delete_address_from(
     address_id: int,
-    x_token: str = Header(None),
-    db_session: Session = Depends(DbSession)
+    current_user: AuthUser = Security(get_current_user, scopes=["full", "default"]),
+    db_session: Session = Depends(DbSession),
 ):
-    if x_token != fake_secret_token:
-        raise HTTPException(status_code=400, detail="Invalid X-Token header")
-
     try:
         AddressController(db_session).delete(address_id)
-        return
-    except InvalidRequestError:
-        raise HTTPException(status_code=404, detail="Address not found")
+    except UnmappedInstanceError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Address not found"
+        )
