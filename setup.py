@@ -3,9 +3,9 @@ import setuptools
 from api import __version__ as VERSION
 
 setuptools.setup(
-    name='4Inteligence_webapi',
+    name='fast-api-sample-crud',
     version=VERSION,
-    description='WebApi for test pratic',
+    description='WebApi sample',
     author='Alexandre Fialho de Araujo',
     author_email='alexandrefialhobr@gmail.com',
     url='',
