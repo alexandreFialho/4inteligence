@@ -2,17 +2,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import RedirectResponse
 
-from api.routers import users, address
-from api.security import auth
+from api.routers import auth, users, address
 from data.models import Base
 from data.database import engine
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(address.router)
-app.include_router(auth.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,4 +24,4 @@ app.add_middleware(
 
 @app.get("/")
 def main():
-    return RedirectResponse(url="/docs/")
+    return RedirectResponse(url="/docs")

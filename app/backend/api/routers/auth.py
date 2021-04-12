@@ -5,10 +5,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
-from api.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from api.deps import DbSession
+from core.config import settings
+from core.controllers.auth import create_access_token, authenticate_user, AuthUserController
+from data.database import DbSession
 from data.schema.auth import AuthUser, AuthUserIn, Token
-from controllers.auth import create_access_token, authenticate_user, AuthUserController
 
 
 router = APIRouter()
@@ -60,7 +60,7 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token_expires = timedelta(minutes=int(settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     access_token = create_access_token(
         data={"sub": user.username, "scopes": form_data.scopes},
         expires_delta=access_token_expires,

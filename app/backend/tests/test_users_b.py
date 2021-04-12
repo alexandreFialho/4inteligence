@@ -1,5 +1,5 @@
 from starlette.testclient import TestClient
-from controllers.auth import create_access_token
+from core.controllers.auth import create_access_token
 
 
 def test_create_auth(client: TestClient):

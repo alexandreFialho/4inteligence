@@ -1,0 +1,6 @@
+poetry.lock
+.pytest_cache
+.Trash-0
+.ipynb_*
+*.ipynb
+=0.0.7

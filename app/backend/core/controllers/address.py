@@ -1,12 +1,12 @@
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
+from core.controllers.base import BaseController
+from core.controllers.users import UserController
 from data.models import Address
 from data.schema.address import AddressBase
-from controllers.base_controller import CONTROLLER
-from controllers.users import UserController
 
 
-class AddressController(CONTROLLER):
+class AddressController(BaseController):
     def __init__(self, db_session):
         super(AddressController, self).__init__(
             db_session=db_session, db_model=Address
@@ -18,7 +18,7 @@ class AddressController(CONTROLLER):
         if not user:
             raise UnmappedInstanceError
 
-        db_address = Address(user=user, **address.dict())
-        self.db_session.add(db_address)
-        self.db_session.commit()
-        return self.get(db_address.id)
+        return super(AddressController, self).create(
+            schema=address,
+            user=user
+        )

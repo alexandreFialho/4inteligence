@@ -1,4 +1,4 @@
 .git
 .vscode
-Dockerfile
+*.dockerfile
 docker-compose.yml

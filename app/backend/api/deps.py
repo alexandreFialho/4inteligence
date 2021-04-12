@@ -1,26 +1,17 @@
-from fastapi import Security, HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends
 from fastapi.security import SecurityScopes
 from sqlalchemy.orm import Session
 from pydantic import ValidationError
 from jose import JWTError, jwt
 
-from api import config
-from data.database import SessionLocal
-from data.schema.auth import TokenData, AuthUser
-from controllers.auth import get_user
-
-
-# Dependency
-def DbSession():
-    try:
-        db = SessionLocal()
-        yield db
-    except Exception as e:
-        raise e
+from core.config import settings
+from core.controllers.auth import get_user
+from data.database import DbSession
+from data.schema.auth import TokenData
 
 
 async def get_current_user(security_scopes: SecurityScopes,
-                           token: str = Depends(config.oauth2_scheme),
+                           token: str = Depends(settings.oauth2_scheme),
                            db_session: Session = Depends(DbSession)):
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
@@ -34,8 +25,8 @@ async def get_current_user(security_scopes: SecurityScopes,
     )
 
     try:
-        payload = jwt.decode(token, config.SECRET_KEY,
-                             algorithms=[config.ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY,
+                             algorithms=[settings.ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception

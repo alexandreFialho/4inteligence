@@ -1,10 +1,10 @@
 from typing import List
-from sqlalchemy.orm import Session, Query
+from sqlalchemy.orm import Session
 
 from data.database import Base
 
 
-class CONTROLLER:
+class BaseController:
     def __init__(self, db_session: Session, db_model: Base):
         self.db_session = db_session
         self.db_model = db_model
@@ -19,17 +19,17 @@ class CONTROLLER:
     def get_all(self) -> List[Base]:
         return self.db_session.query(self.db_model).all()
 
-    def create(self, model_schema) -> Base:
-        new_register = self.db_model(**model_schema.dict())
+    def create(self, schema, **kwargs) -> Base:
+        new_register = self.db_model(**schema.dict(), **kwargs)
         self.db_session.add(new_register)
         self.db_session.commit()
         self.db_session.refresh(new_register)
         return new_register
 
-    def update(self, model_id: int, model_schema) -> Base:
+    def update(self, model_id: int, schema) -> Base:
         self.db_session.query(self.db_model).filter(
             self.db_model.id == model_id
-        ).update(model_schema.dict(exclude_unset=True), synchronize_session="evaluate")
+        ).update(schema.dict(exclude_unset=True), synchronize_session="evaluate")
         self.db_session.commit()
         return self.get(model_id)
 

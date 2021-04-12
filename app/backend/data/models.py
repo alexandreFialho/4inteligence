@@ -7,9 +7,7 @@ from data.database import Base
 
 
 class AuthUser(Base):
-    __tablename__ = "authuser"
-
-    id = Column("id", Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     username = Column("username", String(30), unique=True, nullable=False)
     password = Column("hashed_password", String, nullable=False)
     full_name = Column("full_name", String(30), nullable=True)
@@ -19,9 +17,7 @@ class AuthUser(Base):
 
 
 class User(Base):
-    __tablename__ = "users"
-
-    id = Column("id", Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     name = Column("name", String(30), nullable=False)
     document = Column("document", String(30), unique=True, nullable=False)
     birth_date = Column("birth_date", Date, nullable=False)
@@ -42,13 +38,11 @@ class User(Base):
 
 
 class Address(Base):
-    __tablename__ = "address"
-
-    id = Column("id", Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True)
     user_id = Column(
         "user_id",
         Integer,
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("user.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
     )

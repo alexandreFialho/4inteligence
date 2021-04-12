@@ -6,10 +6,11 @@ from sqlalchemy.orm.exc import UnmappedInstanceError
 from sqlalchemy.exc import IntegrityError
 
 
-from api.deps import DbSession, get_current_user
+from api.deps import get_current_user
+from core.controllers.address import AddressController
 from data.models import AuthUser
+from data.database import DbSession
 from data.schema.address import Address, AddressIn, AddressPut
-from controllers.address import AddressController
 
 router = APIRouter()
 

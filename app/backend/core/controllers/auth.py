@@ -4,18 +4,18 @@ from typing import Optional
 from jose import jwt
 from sqlalchemy.orm import Session
 
-from api import config
+from core.config import settings
+from core.controllers.base import BaseController
 from data.models import AuthUser
 from data.schema.auth import AuthUserIn
-from controllers.base_controller import CONTROLLER
 
 
 def verify_password(plain_password, hashed_password):
-    return config.pwd_context.verify(plain_password, hashed_password)
+    return settings.pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
-    return config.pwd_context.hash(password)
+    return settings.pwd_context.hash(password)
 
 
 def get_user(db_session: Session, username: str) -> AuthUser:
@@ -40,13 +40,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode,
-        config.SECRET_KEY,
-        algorithm=config.ALGORITHM
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM
     )
     return encoded_jwt
 
 
-class AuthUserController(CONTROLLER):
+class AuthUserController(BaseController):
     def __init__(self, db_session: Session):
         super(AuthUserController, self).__init__(
             db_session=db_session, db_model=AuthUser
@@ -55,7 +55,6 @@ class AuthUserController(CONTROLLER):
     def create(self, auth_user: AuthUserIn):
         auth_user.password = get_password_hash(
             auth_user.password)
-        auth_user_db = AuthUser(**auth_user.dict())
-        self.db_session.add(auth_user_db)
-        self.db_session.commit()
-        return self.get(auth_user_db.id)
+        
+        return super(AuthUserController, self).create(
+            schema=auth_user)
